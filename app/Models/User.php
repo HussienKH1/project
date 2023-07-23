@@ -1,0 +1,102 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Sanctum\HasApiTokens;
+
+class User extends Authenticatable
+{
+    use Billable;
+    use HasApiTokens;
+    use HasFactory;
+    use HasProfilePhoto;
+    use Notifiable;
+    use TwoFactorAuthenticatable;
+
+    const DEFAULT = 1;
+    const WRITER = 2;
+    const TRAINER = 3;
+    const ADMIN = 4;
+
+    const TABLE = 'users';
+
+    protected $table = self::TABLE;
+
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'type',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
+    public function id(): int{
+        return $this -> id;
+    }
+
+    public function name(): string{
+        return $this -> name;
+    }
+
+    public function emailaddress(): string{
+        return $this -> email;
+    }
+
+
+    public function type(): int{
+        return (int) $this->type;
+    }
+    public function isWriter(): bool{
+        return $this->type === self::WRITER;
+    }
+    public function isTrainer(): bool{
+        return $this->type === self::TRAINER;
+    }
+
+    public function isAdmin(): bool{
+        return $this->type === self::ADMIN;
+    }
+
+    public function profile(): HasOne{
+        return $this -> hasOne(Profile::class);
+    }
+
+}
